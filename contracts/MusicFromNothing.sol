@@ -13,7 +13,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 
-contract Battles is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, ERC20PausableUpgradeable, OwnableUpgradeable, UUPSUpgradeable {
+contract MusicFromNothing is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, ERC20PausableUpgradeable, OwnableUpgradeable, UUPSUpgradeable {
     // votes
     mapping(address => mapping(string => uint)) battlesVotes;
     
@@ -23,15 +23,15 @@ contract Battles is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, E
         _disableInitializers();
     }
 
-    function initialize(address initialOwner) initializer public {
-        __ERC20_init("MyToken", "MTK");
+    function initialize(address initialOwner, string memory erc20name, string memory erc20symbol) initializer public {
+        __ERC20_init(erc20name, erc20symbol);
         __ERC20Burnable_init();
         __ERC20Pausable_init();
         __Ownable_init(initialOwner);
         __UUPSUpgradeable_init();
     }
 
-    function pause() public onlyOwner {
+    function pause() public onlyOwner whenNotPaused {
         _pause();
     }
 
@@ -39,7 +39,7 @@ contract Battles is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, E
         _unpause();
     }
 
-    function mint(address to, uint256 amount) public onlyOwner {
+    function mint(address to, uint256 amount) public onlyOwner whenNotPaused {
         _mint(to, amount);
     }
 
@@ -60,7 +60,7 @@ contract Battles is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, E
     // BATTLES
     event Voted(address userAddress, string battleId, uint256 amount);
 
-    function vote(string memory battleId) external payable {
+    function vote(string memory battleId) external payable whenNotPaused {
         // amount must be > 0
         require(msg.value > 0, "Amount must be > 0");
 
