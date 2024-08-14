@@ -5,7 +5,7 @@ async function main() {
     const [ deployer ] = await ethers.getSigners();
     const mfn = await ethers.getContractFactory("MusicFromNothing");
 
-    const contract = await upgrades.deployProxy(mfn, [deployer.address, "MusicFromNothing", "MFN"], { initializer: 'initialize', kind: 'uups' });
+    const contract = await upgrades.deployProxy(mfn, [deployer.address, "MusicFromNothing", "MFN", 1000], { initializer: 'initialize', kind: 'uups' });
 
     await contract.waitForDeployment();
     console.log("Deployed to:", await contract.getAddress());
