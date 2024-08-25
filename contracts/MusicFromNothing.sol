@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./MFNToken.sol";
+
 
 contract MusicFromNothing is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     IERC20 public token;
@@ -24,7 +24,7 @@ contract MusicFromNothing is Initializable, OwnableUpgradeable, UUPSUpgradeable 
 
     function initialize(address initialOwner, address tokenAddress) initializer public {
         __Ownable_init(initialOwner);
-        token = MFNToken(tokenAddress);
+        token = IERC20(tokenAddress);
     }
 
     function _authorizeUpgrade(address newImplementation)
@@ -36,7 +36,6 @@ contract MusicFromNothing is Initializable, OwnableUpgradeable, UUPSUpgradeable 
     function vote(string memory battleId, uint256 amount) external {
         require(amount > 0, "Amount must be > 0");
         require(token.balanceOf(msg.sender) >= amount, "Insufficient token balance");
-        require(battlesVotes[msg.sender][battleId] == 0, "Already voted!");
 
         // Transfer tokens from the voter to the logic contract
         token.transferFrom(msg.sender, address(this), amount);
