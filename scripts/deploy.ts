@@ -10,7 +10,7 @@ async function main() {
     console.log("[TOKEN] Deployed to:", await tokenContract.getAddress());
 
     const mfn = await ethers.getContractFactory("MusicFromNothing");
-    const contract = await upgrades.deployProxy(mfn, [deployer.address, await tokenContract.getAddress(), 1000], { initializer: 'initialize', kind: 'uups' });
+    const contract = await upgrades.deployProxy(mfn, [deployer.address, await tokenContract.getAddress()], { initializer: 'initialize', kind: 'uups' });
     await contract.waitForDeployment();
     console.log("[LOGIC] Deployed to:", await contract.getAddress());
 }
