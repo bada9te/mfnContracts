@@ -77,6 +77,49 @@ contract MusicFromNothing is Initializable, OwnableUpgradeable, UUPSUpgradeable 
         emit TokensDeposited(msg.sender, amount);
     }
 
+    function calculateWithdrawalTokensFromBattle(
+        string memory battleId
+    ) public view returns (uint256 totalWithdrawalPerPost1, uint256 totalWithdrawalPerPost2) {
+        string[] memory posts = postsRelations[battleId];
+
+        if (battleTokensTransfers[msg.sender][battleId][posts[0]] == 0) {
+            totalWithdrawalPerPost1 = 0;
+        } else {
+            // Calculate the bonus from the total tokens on the losing side
+            uint256 userTokens = battleTokensTransfers[msg.sender][battleId][posts[0]];
+            uint256 totalTokensLosingPost = totalTokensPerPost[battleId][posts[1]];
+            
+
+            // Bonus is calculated from the total tokens of the losing post
+            uint256 bonus = 0;
+            if (totalVotingsPerPost[battleId][posts[0]] > 0) {
+                bonus = totalTokensLosingPost / totalVotingsPerPost[battleId][posts[0]];
+            }
+
+            // Total amount to withdraw is user's tokens + bonus
+            totalWithdrawalPerPost1 = userTokens + bonus;
+        }
+
+        if (battleTokensTransfers[msg.sender][battleId][posts[1]] == 0) {
+            totalWithdrawalPerPost2 = 0;
+        } else {
+            
+            // Calculate the bonus from the total tokens on the losing side
+            uint256 userTokens = battleTokensTransfers[msg.sender][battleId][posts[1]];
+            uint256 totalTokensLosingPost = totalTokensPerPost[battleId][posts[0]];
+            
+
+            // Bonus is calculated from the total tokens of the losing post
+            uint256 bonus = 0;
+            if (totalVotingsPerPost[battleId][posts[1]] > 0) {
+                bonus = totalTokensLosingPost / totalVotingsPerPost[battleId][posts[1]];
+            }
+
+            // Total amount to withdraw is user's tokens + bonus
+            totalWithdrawalPerPost2 = userTokens + bonus;
+        }
+    }
+
     function withdrawTokensFromBattle(
         string memory battleId, 
         string memory postId
@@ -101,7 +144,10 @@ contract MusicFromNothing is Initializable, OwnableUpgradeable, UUPSUpgradeable 
         uint256 totalTokensLosingPost = totalTokensPerPost[battleId][losingPostId];
 
         // Bonus is calculated from the total tokens of the losing post
-        uint256 bonus = totalTokensLosingPost / totalVotingsPerPost[battleId][winningPostId];
+        uint256 bonus = 0;
+        if (totalVotingsPerPost[battleId][winningPostId] > 0) {
+            bonus = totalTokensLosingPost / totalVotingsPerPost[battleId][winningPostId];
+        }
 
         // Total amount to withdraw is user's tokens + bonus
         uint256 totalWithdrawal = userTokens + bonus;
