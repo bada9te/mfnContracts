@@ -51,6 +51,7 @@ contract MusicFromNothing is Initializable, OwnableUpgradeable, UUPSUpgradeable 
         uint64 endsAt = uint64(block.timestamp + (hoursBeforeFinish * 3600));
         battleFinishesAt[battleId] = endsAt;
         postsRelations[battleId] = [post1Id, post2Id];
+        battleExists[battleId] = true;
     }
 
     function vote(string memory battleId, string memory postId, uint256 amount) external {
@@ -61,7 +62,7 @@ contract MusicFromNothing is Initializable, OwnableUpgradeable, UUPSUpgradeable 
         token.transferFrom(msg.sender, address(this), amount);
 
         // Save voting information
-        battleTokensTransfers[msg.sender][battleId][postId] = amount;
+        battleTokensTransfers[msg.sender][battleId][postId] += amount;
 
         // Update total tokens and votings for the specific post
         totalTokensPerPost[battleId][postId] += amount;
@@ -78,18 +79,18 @@ contract MusicFromNothing is Initializable, OwnableUpgradeable, UUPSUpgradeable 
     }
 
     function calculateWithdrawalTokensFromBattle(
-        string memory battleId
+        string memory battleId,
+        address user
     ) public view returns (uint256 totalWithdrawalPerPost1, uint256 totalWithdrawalPerPost2) {
         string[] memory posts = postsRelations[battleId];
 
-        if (battleTokensTransfers[msg.sender][battleId][posts[0]] == 0) {
+        if (battleTokensTransfers[user][battleId][posts[0]] == 0) {
             totalWithdrawalPerPost1 = 0;
         } else {
             // Calculate the bonus from the total tokens on the losing side
-            uint256 userTokens = battleTokensTransfers[msg.sender][battleId][posts[0]];
+            uint256 userTokens = battleTokensTransfers[user][battleId][posts[0]];
             uint256 totalTokensLosingPost = totalTokensPerPost[battleId][posts[1]];
             
-
             // Bonus is calculated from the total tokens of the losing post
             uint256 bonus = 0;
             if (totalVotingsPerPost[battleId][posts[0]] > 0) {
@@ -100,12 +101,11 @@ contract MusicFromNothing is Initializable, OwnableUpgradeable, UUPSUpgradeable 
             totalWithdrawalPerPost1 = userTokens + bonus;
         }
 
-        if (battleTokensTransfers[msg.sender][battleId][posts[1]] == 0) {
+        if (battleTokensTransfers[user][battleId][posts[1]] == 0) {
             totalWithdrawalPerPost2 = 0;
         } else {
-            
             // Calculate the bonus from the total tokens on the losing side
-            uint256 userTokens = battleTokensTransfers[msg.sender][battleId][posts[1]];
+            uint256 userTokens = battleTokensTransfers[user][battleId][posts[1]];
             uint256 totalTokensLosingPost = totalTokensPerPost[battleId][posts[0]];
             
 

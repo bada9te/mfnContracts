@@ -5,7 +5,7 @@ async function main() {
     console.log("[USDC] Selecting...", network.name);
     let USDCAddress = "0x";
     switch (network.name) {
-        case "bsc_test":  USDCAddress = "0x16227D60f7a0e586C66B005219dfc887D13C9531"; break;
+        case "bsc_test":  USDCAddress = "0x11562f66bCa542b1345D18963a2ac3f86D2cc07a"; break;
 
         case "bsc":       USDCAddress = "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"; break;
         case "arbitrum":  USDCAddress = "0xaf88d065e77c8cc2239327c5edb3a432268e5831"; break;
